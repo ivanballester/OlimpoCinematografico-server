@@ -1,8 +1,5 @@
 const router = require("express").Router();
-const {
-  isAdmin,
-  isAuthenticated,
-} = require("./../middleware/jwt.middleware.js");
+const { isAdmin, isAuthenticated } = require("../middleware/jwt.middleware");
 
 router.get("/", (req, res, next) => {
   res.json("All good in here");
