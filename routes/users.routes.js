@@ -2,7 +2,6 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User.model");
-const { isAuthenticated, isAdmin } = require("../middleware/jwt.middleware");
 
 const router = express.Router();
 const saltRounds = 10;
@@ -98,37 +97,4 @@ router.delete("/users/:id", async (req, res, next) => {
   }
 });
 
-router.get(
-  "/users/profile",
-  isAuthenticated,
-  isAdmin,
-  async (req, res, next) => {
-    const { _id } = req.payload;
-
-    try {
-      const profile = await User.findById(_id);
-      res.status(200).json(profile);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-);
-router.patch("/users/profile", async (req, res, next) => {
-  const { _id } = req.payload;
-  try {
-    const profile = await User.findByIdAndUpdate(
-      _id,
-      {
-        name,
-        password,
-        photo,
-        phoneNumber,
-      },
-      { new: true }
-    );
-    res.status(200).json(profile);
-  } catch (error) {
-    console.log(error);
-  }
-});
 module.exports = router;

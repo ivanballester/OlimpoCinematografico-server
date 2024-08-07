@@ -9,10 +9,12 @@ const reviewRouter = require("./reviews.routes");
 const userRoutes = require("./users.routes");
 const authRouter = require("./auth.routes");
 const commentRouter = require("./comments.routes");
+const profileRouter = require("./profile.routes");
 
 router.use("/", reviewRouter);
-router.use("/", userRoutes);
+router.use("/", isAdmin, userRoutes);
 router.use("/auth", authRouter);
 router.use("/", commentRouter);
+router.use("/", profileRouter);
 
 module.exports = router;
