@@ -12,7 +12,7 @@ const commentRouter = require("./comments.routes");
 const profileRouter = require("./profile.routes");
 
 router.use("/", reviewRouter);
-router.use("/", isAdmin, userRoutes);
+router.use("/", userRoutes);
 router.use("/auth", authRouter);
 router.use("/", commentRouter);
 router.use("/", profileRouter);

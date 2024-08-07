@@ -2,6 +2,7 @@ const express = require("express");
 const { isAuthenticated } = require("../middleware/jwt.middleware.js");
 const Comment = require("../models/Comment.model");
 const Review = require("../models/Review.model");
+const { default: mongoose } = require("mongoose");
 
 const router = express.Router();
 
@@ -19,11 +20,20 @@ router.post(
   isAuthenticated,
   async (req, res, next) => {
     const { id } = req.params;
-    const { text } = req.body;
+    const { text, rating } = req.body;
     const creator = req.payload._id;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "ID de reseña no válido" });
+    }
+
+    if (rating < 1 || rating > 5) {
+      return res
+        .status(400)
+        .json({ message: "La calificación debe estar entre 1 y 5" });
+    }
 
     try {
-      const newComment = await Comment.create({ text, creator });
+      const newComment = await Comment.create({ text, creator, review: id });
 
       await Review.findByIdAndUpdate(id, {
         $push: { comments: newComment._id },

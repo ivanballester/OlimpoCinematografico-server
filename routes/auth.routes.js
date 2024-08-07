@@ -48,56 +48,55 @@ router.post("/signup", async (req, res, next) => {
       email,
       password: hashedPassword,
       name,
-      role,
     });
-
-    const { _id, role } = createdUser;
-
-    const user = { email, name, _id, role };
-
-    res.status(201).json({ user: user });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Error interno del servidor" });
   }
 });
 
-router.post("/login", (req, res, next) => {
+router.post("/login", async (req, res, next) => {
   const { email, password } = req.body;
 
-  //Check if no empty slot
   if (!email || !password) {
-    res.status(400).json({ message: "Proporciona un email y la contraseña" });
+    res.status(400).json({ errorMessage: "Email y password son obligatorios" });
     return;
   }
 
-  //Check if user exist
+  try {
+    const foundUser = await User.findOne({ email: email });
+    console.log(foundUser);
+    if (foundUser === null) {
+      res.status(400).json({
+        errorMessage: "Usuario no registrado con ese correo electronico",
+      });
+      return;
+    }
 
-  User.findOne({ email })
-    .then((foundUser) => {
-      if (!foundUser) {
-        res.status(401).json({ message: "Email no encontrado" });
-        return;
-      }
+    const isPasswordCorrect = await bcrypt.compare(
+      password,
+      foundUser.password
+    );
+    if (isPasswordCorrect === false) {
+      res.status(400).json({ errorMessage: "Contraseña no correcta" });
+      return;
+    }
 
-      const passwordCorrect = bcrypt.compareSync(password, foundUser.password);
+    const payload = {
+      _id: foundUser._id,
+      email: foundUser.email,
+      role: foundUser.role,
+    };
 
-      if (passwordCorrect) {
-        const { _id, email, name, role } = foundUser;
+    const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
+      algorithm: "HS256",
+      expiresIn: "7d",
+    });
 
-        const payload = { _id, email, name, role };
-
-        const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
-          algorithm: "HS256",
-          expiresIn: "10h",
-        });
-
-        res.status(200).json({ authToken: authToken });
-      } else {
-        res.status(401).json({ message: "Usuario no identificado" });
-      }
-    })
-    .catch((err) => res.status(500).json({ message: "internal server rror" }));
+    res.status(200).json({ authToken });
+  } catch (error) {
+    next(error);
+  }
 });
 
 router.get("/verify", isAuthenticated, (req, res, next) => {

@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User.model");
+const { isAdmin, isAuthenticated } = require("../middleware/jwt.middleware");
 
 const router = express.Router();
 const saltRounds = 10;
@@ -16,7 +17,7 @@ router.get("/users", async (req, res, next) => {
   }
 });
 
-router.post("/users", async (req, res, next) => {
+router.post("/users", isAuthenticated, isAdmin, async (req, res, next) => {
   const { email, password, name } = req.body;
 
   if (!email || !password || !name) {
@@ -41,19 +42,14 @@ router.post("/users", async (req, res, next) => {
       password: hashedPassword,
       name,
     });
-
-    const { _id } = createdUser;
-
-    const user = { email, name, _id };
-
-    res.status(201).json({ user: user });
+    next();
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Error interno del servidor" });
   }
 });
 
-router.get("/users/:id", async (req, res, next) => {
+router.get("/users/:id", isAdmin, isAuthenticated, async (req, res, next) => {
   const { id } = req.params;
 
   try {
@@ -68,7 +64,7 @@ router.get("/users/:id", async (req, res, next) => {
   }
 });
 
-router.patch("/users/:id", async (req, res, next) => {
+router.patch("/users/:id", isAuthenticated, isAdmin, async (req, res, next) => {
   const { id } = req.params;
   const { email, name, role } = req.body;
 
@@ -85,16 +81,22 @@ router.patch("/users/:id", async (req, res, next) => {
   }
 });
 
-router.delete("/users/:id", async (req, res, next) => {
-  const { id } = req.params;
+router.delete(
+  "/users/:id",
+  isAuthenticated,
+  isAdmin,
 
-  try {
-    await User.findByIdAndDelete(id);
-    res.status(204).json();
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Error interno del servidor" });
+  async (req, res, next) => {
+    const { id } = req.params;
+
+    try {
+      await User.findByIdAndDelete(id);
+      res.status(204).json();
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ message: "Error interno del servidor" });
+    }
   }
-});
+);
 
 module.exports = router;

@@ -14,12 +14,14 @@ const isAuthenticated = (req, res, next) => {
     next();
   } catch (error) {
     console.error("Error al verificar el token:", error);
-    res.status(401).json({ message: "Token no válido" });
+    res.status(401).json({ errorMessage: "Token no válido" });
   }
 };
 
 const isAdmin = (req, res, next) => {
-  if (req.payload.role === "admin") {
+  console.log("Payload:", req.payload);
+
+  if (req.payload && req.payload.role === "admin") {
     next();
   } else {
     res
