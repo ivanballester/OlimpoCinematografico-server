@@ -18,14 +18,14 @@ router.post(
   "/reviews/:id/comments",
   isAuthenticated,
   async (req, res, next) => {
-    const { reviewId } = req.params;
+    const { id } = req.params;
     const { text } = req.body;
     const creator = req.payload._id;
 
     try {
       const newComment = await Comment.create({ text, creator });
 
-      await Review.findByIdAndUpdate(reviewId, {
+      await Review.findByIdAndUpdate(id, {
         $push: { comments: newComment._id },
       });
 

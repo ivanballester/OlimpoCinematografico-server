@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const { isAdmin } = require("../middleware/jwt.middleware.js");
 
 const Review = require("../models/Review.model");
 
@@ -11,7 +12,7 @@ router.get("/reviews", async (req, res, next) => {
     res.status(500).json({ message: "Error al obtener las reseñas" });
   }
 });
-router.post("/reviews", async (req, res, next) => {
+router.post("/reviews", isAdmin, async (req, res, next) => {
   const { text } = req.body;
 
   try {
@@ -40,7 +41,7 @@ router.get("/reviews/:id", async (req, res, next) => {
   }
 });
 
-router.patch("/reviews/:id", async (req, res, next) => {
+router.patch("/reviews/:id", isAdmin, async (req, res, next) => {
   const { id } = req.params;
   const { text } = req.body;
 
@@ -60,7 +61,7 @@ router.patch("/reviews/:id", async (req, res, next) => {
   }
 });
 
-router.delete("/reviews/:id", async (req, res, next) => {
+router.delete("/reviews/:id", isAdmin, async (req, res, next) => {
   const { id } = req.params;
 
   try {
@@ -76,10 +77,10 @@ router.delete("/reviews/:id", async (req, res, next) => {
 });
 
 router.get("/reviews/:id/comments", async (req, res, next) => {
-  const { reviewId } = req.params;
+  const { id } = req.params;
 
   try {
-    const review = await Review.findById(reviewId).populate({
+    const review = await Review.findById(id).populate({
       path: "comments",
       populate: {
         path: "creator",

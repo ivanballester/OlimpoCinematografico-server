@@ -48,6 +48,7 @@ router.post("/signup", async (req, res, next) => {
       email,
       password: hashedPassword,
       name,
+      role,
     });
 
     const { _id, role } = createdUser;
@@ -82,7 +83,7 @@ router.post("/login", (req, res, next) => {
       const passwordCorrect = bcrypt.compareSync(password, foundUser.password);
 
       if (passwordCorrect) {
-        const { _id, email, name } = foundUser;
+        const { _id, email, name, role } = foundUser;
 
         const payload = { _id, email, name, role };
 
