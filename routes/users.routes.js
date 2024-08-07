@@ -1,7 +1,10 @@
 const express = require("express");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const User = require("../models/User.model");
 
 const router = express.Router();
+const saltRounds = 10;
 
 router.get("/users", async (req, res, next) => {
   try {
@@ -14,9 +17,9 @@ router.get("/users", async (req, res, next) => {
 });
 
 router.post("/users", async (req, res, next) => {
-  const { email, password, name, role } = req.body;
+  const { email, password, name } = req.body;
 
-  if (!email || !password || !name || !role) {
+  if (!email || !password || !name) {
     return res
       .status(400)
       .json({ message: "Todos los campos son requeridos." });
@@ -37,12 +40,11 @@ router.post("/users", async (req, res, next) => {
       email,
       password: hashedPassword,
       name,
-      role,
     });
 
     const { _id } = createdUser;
 
-    const user = { email, name, _id, role };
+    const user = { email, name, _id };
 
     res.status(201).json({ user: user });
   } catch (err) {
@@ -51,7 +53,22 @@ router.post("/users", async (req, res, next) => {
   }
 });
 
-router.put("/users/:id", async (req, res, next) => {
+router.get("/users/:id", async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+    res.status(200).json(user);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+});
+
+router.patch("/users/:id", async (req, res, next) => {
   const { id } = req.params;
   const { email, name, role } = req.body;
 

@@ -25,7 +25,7 @@ router.post("/reviews", async (req, res, next) => {
   }
 });
 
-router.get("/:id", async (req, res, next) => {
+router.get("/reviews/:id", async (req, res, next) => {
   const { id } = req.params;
 
   try {
@@ -40,7 +40,7 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-router.put("/:id", async (req, res, next) => {
+router.patch("/reviews/:id", async (req, res, next) => {
   const { id } = req.params;
   const { text } = req.body;
 
@@ -60,7 +60,7 @@ router.put("/:id", async (req, res, next) => {
   }
 });
 
-router.delete("/:id", async (req, res, next) => {
+router.delete("/reviews/:id", async (req, res, next) => {
   const { id } = req.params;
 
   try {
@@ -74,4 +74,28 @@ router.delete("/:id", async (req, res, next) => {
     res.status(500).json({ message: "Error al eliminar la reseña" });
   }
 });
+
+router.get("/reviews/:id/comments", async (req, res, next) => {
+  const { reviewId } = req.params;
+
+  try {
+    const review = await Review.findById(reviewId).populate({
+      path: "comments",
+      populate: {
+        path: "creator",
+        select: "name email",
+      },
+    });
+
+    if (!review) {
+      return res.status(404).json({ message: "Review no encontrada" });
+    }
+
+    res.status(200).json(review.comments);
+  } catch (error) {
+    console.error("Error al obtener los comentarios de la review", error);
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+});
+
 module.exports = router;

@@ -6,12 +6,13 @@ router.get("/", (req, res, next) => {
 });
 
 const reviewRouter = require("./reviews.routes");
-router.use("/", reviewRouter);
-
 const userRoutes = require("./users.routes");
-router.use("/", userRoutes);
-
 const authRouter = require("./auth.routes");
+const commentRouter = require("./comments.routes");
+
+router.use("/", reviewRouter);
+router.use("/", userRoutes);
 router.use("/auth", authRouter);
+router.use("/", commentRouter);
 
 module.exports = router;
