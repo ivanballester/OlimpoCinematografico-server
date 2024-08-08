@@ -13,7 +13,7 @@ router.get("/profile", isAuthenticated, async (req, res, next) => {
     res.status(200).json(profile);
   } catch (error) {
     console.error("Error al obtener el perfil:", error);
-    res.status(500).json({ message: "Error interno del servidor" });
+    next(error);
   }
 });
 
@@ -40,8 +40,8 @@ router.patch("/profile", isAuthenticated, async (req, res, next) => {
 
     res.status(200).json(profile);
   } catch (error) {
-    console.error("Error al actualizar el perfil:", error);
-    res.status(500).json({ message: "Error interno del servidor" });
+    console.error("Error al obtener el perfil:", error);
+    next(error);
   }
 });
 

@@ -11,8 +11,7 @@ router.get("/comments", async (req, res, next) => {
     const comments = await Comment.find().populate("creator", "name email");
     res.status(200).json(comments);
   } catch (error) {
-    console.error("Error while fetching Comments", error);
-    res.status(500).json({ message: "Error while fetching Comments" });
+    next(error);
   }
 });
 router.post(
@@ -39,12 +38,9 @@ router.post(
         $push: { comments: newComment._id },
       });
 
-      res
-        .status(201)
-        .json({ message: "Comentario creado con éxito", comment: newComment });
+      res.sendStatus(201);
     } catch (error) {
-      console.error("Error al crear el comentario", error);
-      res.status(500).json({ message: "Error al crear el comentario" });
+      next(error);
     }
   }
 );
@@ -69,8 +65,7 @@ router.delete("/comments/:id", isAuthenticated, async (req, res, next) => {
         .json({ message: "No tienes permisos para eliminar este comentario" });
     }
   } catch (error) {
-    console.error("Error while deleting Comment", error);
-    res.status(500).json({ message: "Error while deleting Comment" });
+    next(error);
   }
 });
 

@@ -12,8 +12,7 @@ router.get("/users", async (req, res, next) => {
     const users = await User.find();
     res.status(200).json(users);
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Error interno del servidor" });
+    next(err);
   }
 });
 
@@ -44,8 +43,7 @@ router.post("/users", isAuthenticated, isAdmin, async (req, res, next) => {
     });
     next();
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Error interno del servidor" });
+    next(err);
   }
 });
 
@@ -59,8 +57,7 @@ router.get("/users/:id", isAdmin, isAuthenticated, async (req, res, next) => {
     }
     res.status(200).json(user);
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Error interno del servidor" });
+    next(err);
   }
 });
 
@@ -76,8 +73,7 @@ router.patch("/users/:id", isAuthenticated, isAdmin, async (req, res, next) => {
     );
     res.status(200).json(updatedUser);
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Error interno del servidor" });
+    next(err);
   }
 });
 
@@ -91,10 +87,9 @@ router.delete(
 
     try {
       await User.findByIdAndDelete(id);
-      res.status(204).json();
+      res.sendStatus(204);
     } catch (err) {
-      console.log(err);
-      res.status(500).json({ message: "Error interno del servidor" });
+      next(err);
     }
   }
 );
