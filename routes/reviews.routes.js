@@ -12,17 +12,11 @@ router.get("/reviews", async (req, res, next) => {
   }
 });
 router.post("/reviews", isAuthenticated, isAdmin, async (req, res, next) => {
-  const { text, rating } = req.body;
+  const { text, rating, movieId } = req.body;
   const creator = req.payload._id;
 
-  if (rating < 1 || rating > 5) {
-    return res
-      .status(400)
-      .json({ message: "La calificación debe estar entre 1 y 5" });
-  }
-
   try {
-    const newReview = await Review.create({ text, rating, creator });
+    const newReview = await Review.create({ text, rating, creator, movieId });
     res
       .status(201)
       .json({ message: "Review created successfully", review: newReview });
