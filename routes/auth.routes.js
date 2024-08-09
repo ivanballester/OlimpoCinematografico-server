@@ -49,6 +49,18 @@ router.post("/signup", async (req, res, next) => {
       password: hashedPassword,
       name,
     });
+
+    const payload = {
+      _id: createdUser._id,
+      email: createdUser.email,
+      role: createdUser.role,
+    };
+
+    const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
+      algorithm: "HS256",
+      expiresIn: "7d",
+    });
+    res.status(201).json({ authToken });
   } catch (err) {
     next(err);
   }
