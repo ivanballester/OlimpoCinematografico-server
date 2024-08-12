@@ -31,13 +31,24 @@ router.post(
         review: id,
       });
 
+      const populatedComment = await Comment.findById(newComment._id).populate(
+        "creator"
+      );
+
       await Review.findByIdAndUpdate(
         id,
         { $push: { comments: newComment._id } },
         { new: true, runValidators: true }
       );
 
-      const updatedReview = await Review.findById(id).populate("comments");
+      const updatedReview = await Review.findById(id).populate({
+        path: "comments",
+        populate: {
+          path: "creator",
+          select: "name email",
+        },
+      });
+
       res.status(201).json(updatedReview);
     } catch (error) {
       next(error);
@@ -52,12 +63,11 @@ router.delete("/comments/:id", isAuthenticated, async (req, res, next) => {
   try {
     const comment = await Comment.findById(id);
 
-    if (!comment) {
-      return res.status(404).json({ message: "Comment not found" });
-    }
-
     if (comment.creator.equals(userId) || req.payload.role === "admin") {
+      await Review.updateOne({ comments: id }, { $pull: { comments: id } });
+
       await Comment.findByIdAndDelete(id);
+
       res.status(204).json();
     } else {
       res
