@@ -14,6 +14,7 @@ router.get("/comments", async (req, res, next) => {
     next(error);
   }
 });
+
 router.post(
   "/reviews/:id/comments",
   isAuthenticated,
@@ -21,24 +22,23 @@ router.post(
     const { id } = req.params;
     const { text, rating } = req.body;
     const creator = req.payload._id;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "ID de reseña no válido" });
-    }
-
-    if (rating < 1 || rating > 5) {
-      return res
-        .status(400)
-        .json({ message: "La calificación debe estar entre 1 y 5" });
-    }
 
     try {
-      const newComment = await Comment.create({ text, creator, review: id });
-
-      await Review.findByIdAndUpdate(id, {
-        $push: { comments: newComment._id },
+      const newComment = await Comment.create({
+        text,
+        rating,
+        creator,
+        review: id,
       });
 
-      res.sendStatus(201);
+      await Review.findByIdAndUpdate(
+        id,
+        { $push: { comments: newComment._id } },
+        { new: true, runValidators: true }
+      );
+
+      const updatedReview = await Review.findById(id).populate("comments");
+      res.status(201).json(updatedReview);
     } catch (error) {
       next(error);
     }
