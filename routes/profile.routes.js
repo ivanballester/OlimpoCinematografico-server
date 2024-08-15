@@ -20,7 +20,7 @@ router.get("/profile", isAuthenticated, async (req, res, next) => {
 //
 router.patch("/profile", isAuthenticated, async (req, res, next) => {
   const { _id } = req.payload;
-  const { name, password, photo, phoneNumber } = req.body;
+  const { name, password, photo, phoneNumber, city } = req.body;
 
   try {
     const profile = await User.findByIdAndUpdate(
@@ -30,6 +30,7 @@ router.patch("/profile", isAuthenticated, async (req, res, next) => {
         password,
         photo,
         phoneNumber,
+        city,
       },
       { new: true }
     );
