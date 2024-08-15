@@ -8,7 +8,7 @@ const router = express.Router();
 const saltRounds = 10;
 
 router.post("/signup", async (req, res, next) => {
-  const { email, password, name } = req.body;
+  const { email, password, name, phoneNumber } = req.body;
 
   //Check if user provided not an empty slot
   if (!email || !password || !name) {
@@ -48,12 +48,14 @@ router.post("/signup", async (req, res, next) => {
       email,
       password: hashedPassword,
       name,
+      phoneNumber,
     });
 
     const payload = {
       _id: createdUser._id,
       email: createdUser.email,
       role: createdUser.role,
+      phoneNumber: createdUser.phoneNumber,
     };
 
     const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {

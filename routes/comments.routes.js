@@ -2,7 +2,7 @@ const express = require("express");
 const { isAuthenticated } = require("../middleware/jwt.middleware.js");
 const Comment = require("../models/Comment.model");
 const Review = require("../models/Review.model");
-const { default: mongoose } = require("mongoose");
+const { mongoose } = require("mongoose");
 
 const router = express.Router();
 
