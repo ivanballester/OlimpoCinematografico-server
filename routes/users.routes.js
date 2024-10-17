@@ -41,7 +41,9 @@ router.post("/users", isAuthenticated, isAdmin, async (req, res, next) => {
       password: hashedPassword,
       name,
     });
-    next();
+    return res
+      .status(201)
+      .json({ message: "Usuario creado exitosamente", user: createdUser });
   } catch (err) {
     next(err);
   }
