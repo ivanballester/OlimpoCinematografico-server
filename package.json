@@ -1,10 +1,11 @@
 {
-  "name": "OlimpoCinematografico-server-server",
+  "name": "OlimpoCinematografico-server",
   "version": "0.0.0",
   "private": true,
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+     "build": "echo 'No build step necessary'"
   },
   "dependencies": {
     "axios": "^1.7.3",
